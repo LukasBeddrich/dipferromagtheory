@@ -7,3 +7,4 @@ PHYSICS LETTERS A 123, 1 (1987)
 """
 
 from . import vertices
+from . import linewidth

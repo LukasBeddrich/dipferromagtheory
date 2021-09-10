@@ -69,7 +69,7 @@ def vTTTscaled(y, g, rho, eta):
     """
 
     """
-    return np.power(rho * eta - 0.5, 2) * (1 - np.power(eta, 2)) * (1 + 0.5 * np.power(rhom(y, g, rho, eta), -2))
+    return np.power(rho * eta - 0.5, 2) * (1 - np.power(eta, 2)) * (1 + 0.5 * np.power(rhom(rho, eta), -2))
 
 #------------------------------------------------------------------------------
 
@@ -77,7 +77,7 @@ def vTLTscaled(y, g, rho, eta):
     """
 
     """
-    return (2 - (1 - np.power(eta, 2)) * (1 + np.power(rhom(y, g, rho, eta), -2))) * np.power(rho * eta - 0.5 * (1 + np.power(y, 2)), 2)
+    return (2 - (1 - np.power(eta, 2)) * (1 + np.power(rhom(rho, eta), -2))) * np.power(rho * eta - 0.5 * (1 + np.power(y, 2)), 2)
 
 #------------------------------------------------------------------------------
 
@@ -85,6 +85,6 @@ def vTLLscaled(y, g, rho, eta):
     """
 
     """
-    return (1 - np.power(eta, 2)) * 0.5 * np.power(rhom(y, g, rho, eta), -2) * np.power(rho * eta - 0.5, 2)
+    return (1 - np.power(eta, 2)) * 0.5 * np.power(rhom(rho, eta), -2) * np.power(rho * eta - 0.5, 2)
 
 ###############################################################################

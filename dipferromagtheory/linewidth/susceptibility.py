@@ -1,6 +1,7 @@
 """
 Implements all the susceptibility functions.
 """
+import numpy as np
 
 class Chi():
     """
@@ -38,7 +39,7 @@ class Chi():
             self.j = value
         elif key == "g":
             self.g = value
-        elif key == "xi"
+        elif key == "xi":
             self.xi = value
         else:
             print(f"key {key} is not known! Acceptable keys are 'j', 'g', 'xi'")

@@ -15,6 +15,10 @@ def kdelta(i, j):
 def rhom(rho, eta):
     """
 
+    Note
+    ----
+    This becomes 0 if eta = 1 and rho = 1, which leads to trouble
+    when calculating rhom(rho, eta)**-2
     """
     return (1 + rho**2 - 2*rho*eta)**0.5
 
