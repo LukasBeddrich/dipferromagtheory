@@ -102,19 +102,18 @@ class DynScalingFunc():
         for gidx, (ax, ay) in enumerate(zip(self.x, self.y)):
             # first term alpha = L, beta = sigma = T
             LTT = vLTTscaled(ay, g, rr, ee) * np.power(rrm, -2) * self.Chi.chiTscaled(ax/rr, ay/rr) * self.Chi.chiTscaled(ax/rrm, ay/rrm)
-            LTT /= (rr**2.5 * self.gammaT[self._select_rho_idx(ax, rho)] + np.power(rrm, 2.5) * self.gammaT(self._select_rhom_idx(ax, rrm)))
+            LTT /= (rr**2.5 * self.gammaT[self._select_rho_idx(ax, rho)] + np.power(rrm, 2.5) * self.gammaT[self._select_rhom_idx(ax, rrm)])
 #            temp = vLTTscaled(ay, g, rr, ee) * np.power(rrm, -2) * self.Chi.chiTscaled(ax/rr, ay/rr) * self.Chi.chiTscaled(ax/rrm, ay/rrm)
 #            temp /= (rr**2.5 * self.gammaT[self._select_rho_idx(ax, rho)] + rhom(rr, ee)**2.5 * self.gammaT(self._select_rhom_idx(ax, rrm))
 
             # second term alpha = beta = L, sigma = T
             LLT = vLLTscaled(ay, self.g, rr, ee) * np.power(rrm, -2) * self.Chi.chiLscaled(ax/rr, ay/rr) * self.Chi.chiTscaled(ax/rrm, ay/rrm)
-            LLT /= (rr**2.5 * self.gammaL[self._select_rho_idx(ax, rho)] + np.power(rrm, 2.5) * self.gammaT(self._select_rhom_idx(ax, rrm)))
+            LLT /= (rr**2.5 * self.gammaL[self._select_rho_idx(ax, rho)] + np.power(rrm, 2.5) * self.gammaT[self._select_rhom_idx(ax, rrm)])
 #            temp += (
 #                vLLTscaled(ay, self.g, rr, ee) * np.power(rrm, -2) * self.Chi.chiLscaled(ax/rr, ay/rr) * self.Chi.chiTscaled(ax/rrm, ay/rrm) \
 #                / (rr**2.5 * self.gammaL[self._select_rho_idx(ax, rho)] + rhom(rr, ee)**2.5 * self.gammaT(self._select_rhom_idx(ax, rrm)))
 #            )
             newgamma[gidx] = np.trapz(np.trapz(LTT + LLT, rho, axis=1), eta)
-        
         return newgamma
 
 #------------------------------------------------------------------------------
@@ -166,7 +165,7 @@ class DynScalingFunc():
         # Take the absolute value of the subtracted array and find
         # the minimum value
         # has length 
-        return np.tile(np.argmin(np.abs(x2d - x_over_rhos), axis=1), (self.settings["neta"], 1))
+        return np.tile(np.argmin(np.abs(x2d - x_over_rhos), axis=0), (self.settings["neta"], 1))
 
 #------------------------------------------------------------------------------
 
@@ -177,7 +176,7 @@ class DynScalingFunc():
         # Build 3D versions of the arrays to find all indices without
         # python native iteration
         x3d = np.transpose(np.tile(self.x, list(rhosm.shape) + [1]), (2,0,1))
-        rrm3d = np.tile(rhosm, (len(self.x)))
+        rrm3d = np.tile(rhosm, (len(self.x), 1, 1))
         # calculate 
         x_over_rhosm = ax / rrm3d
         return np.argmin(np.abs(x3d - x_over_rhosm), axis=0)
