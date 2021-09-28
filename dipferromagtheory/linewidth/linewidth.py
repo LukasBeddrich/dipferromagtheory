@@ -43,6 +43,37 @@ class DynScalingFunc():
 
 #------------------------------------------------------------------------------
 
+    def update(self):
+        """
+
+        """
+        self.Chi = Chi(self.j, self.g, self.xi)
+        self.x = np.power(self.qs * self.xi, -1)
+        self.y = np.sqrt(self.g) * np.power(self.qs, -1)
+
+#------------------------------------------------------------------------------
+
+    def set(self, key, value):
+        """
+
+        """
+        if key.lower() == "j":
+            self.j = value
+        elif key.lower() == "g":
+            self.g = value
+        elif key.lower() == "xi":
+            self.xi = value
+        elif key.lower() == "nrho":
+            self.settings["nrho"] = value
+        elif key.lower() == "neta":
+            self.settings["neta"] = value
+        else:
+            print(f"key {key} is not known! Acceptable keys are 'j', 'g', 'xi', 'nrho', 'neta'")
+        
+        self.update()
+
+#------------------------------------------------------------------------------
+
     def __call__(self, x, y):
         """
 
@@ -66,8 +97,54 @@ class DynScalingFunc():
         rrm = rhom(rr, ee)
 
         for gidx, (ax, ay) in enumerate(zip(self.x, self.y)):
-            temp = vLTTscaled(ay, g, rr, ee) * np.power(rrm, -2) * self.Chi.chiTscaled(ax/rr, ay/rr) * self.Chi.chiTscaled(ax/rrm, ay/rrm)
-            temp /= (rr**2.5 * self.gammaT[self._select_rho_idx(ax, rho)] + rhom(rr, ee)**2.5 * self.gammaT(self._select_rhom_idx(ax, rrm)))
+            # first term alpha = L, beta = sigma = T
+            LTT = vLTTscaled(ay, g, rr, ee) * np.power(rrm, -2) * self.Chi.chiTscaled(ax/rr, ay/rr) * self.Chi.chiTscaled(ax/rrm, ay/rrm)
+            LTT /= (rr**2.5 * self.gammaT[self._select_rho_idx(ax, rho)] + np.power(rrm, 2.5) * self.gammaT(self._select_rhom_idx(ax, rrm)))
+#            temp = vLTTscaled(ay, g, rr, ee) * np.power(rrm, -2) * self.Chi.chiTscaled(ax/rr, ay/rr) * self.Chi.chiTscaled(ax/rrm, ay/rrm)
+#            temp /= (rr**2.5 * self.gammaT[self._select_rho_idx(ax, rho)] + rhom(rr, ee)**2.5 * self.gammaT(self._select_rhom_idx(ax, rrm))
+
+            # second term alpha = beta = L, sigma = T
+            LLT = vLLTscaled(ay, self.g, rr, ee) * np.power(rrm, -2) * self.Chi.chiLscaled(ax/rr, ay/rr) * self.Chi.chiTscaled(ax/rrm, ay/rrm)
+            LLT /= (rr**2.5 * self.gammaL[self._select_rho_idx(ax, rho)] + np.power(rrm, 2.5) * self.gammaT(self._select_rhom_idx(ax, rrm)))
+#            temp += (
+#                vLLTscaled(ay, self.g, rr, ee) * np.power(rrm, -2) * self.Chi.chiLscaled(ax/rr, ay/rr) * self.Chi.chiTscaled(ax/rrm, ay/rrm) \
+#                / (rr**2.5 * self.gammaL[self._select_rho_idx(ax, rho)] + rhom(rr, ee)**2.5 * self.gammaT(self._select_rhom_idx(ax, rrm)))
+#            )
+            newgamma[gidx] = np.trapz(np.trapz(LTT + LLT, rho, axis=1), eta)
+        
+        return newgamma
+
+#------------------------------------------------------------------------------
+
+    def _calcT(self):
+        """
+        Calculates one iteration of the gammaT given the current state
+
+        Note
+        ----
+        """
+        newgamma = np.zeros(self.gammaL.shape)
+        rho = np.logspace(-1, 3.1, self.settings["nrho"])
+        eta = np.linspace(-1,1, self.settings["neta"])
+        rr, ee = np.meshgrid(rho, eta)
+        rrm = rhom(rr, ee)
+
+        for gidx, (ax, ay) in enumerate(zip(self.x, self.y)):
+            # first term alpha = beta = sigma = T
+            TTT = vTTTscaled(ay, self.g, rr, ee) * np.power(rrm, -2) * self.Chi.chiTscaled(ax/rr, ay/rr) * self.Chi.chiTscaled(ax/rrm, ay/rrm)
+            TTT /= (np.power(rr, 2.5) * self.gammaT[self._select_rho_idx(ax, rho)] + np.power(rrm, 2.5) * self.gammaT[self._select_rhom_idx(ax, rhom)])
+
+            # second term alpha = beta = T, sigma = L
+            TLT = vTLTscaled(ay, self.g, rr, ee) * np.power(rrm, -2) * self.Chi.chiLscaled(ax/rr, ay/rr) * self.Chi.chiTscaled(ax/rrm, ay/rrm)
+            TLT /= (np.power(rr, 2.5) * self.gammaL[self._select_rho_idx(ax, rho)] + np.power(rrm, 2.5) * self.gammaT[self._select_rhom_idx(ax, rhom)])
+
+            # third term alpha = T, beta = sigma = L
+            TLL = vTLLscaled(ay, self.g, rr, ee) * np.power(rrm, -2) * self.Chi.chiLscaled(ax/rr, ay/rr) * self.Chi.chiLscaled(ax/rrm, ay/rrm)
+            TLL /= (np.power(rr, 2.5) * self.gammaL[self._select_rho_idx(ax, rho)] + np.power(rrm, 2.5) * self.gammaL[self._select_rhom_idx(ax, rhom)])
+
+            newgamma[gidx] = np.trapz(np.trapz(TTT + TLT + TLL, rho, axis=1), eta)
+
+        return newgamma
 
 #------------------------------------------------------------------------------
 
@@ -98,19 +175,28 @@ class DynScalingFunc():
 
 #------------------------------------------------------------------------------
 
-    def _select_rhom_idx(self, ax, rhos):
+    def _select_rhom_idx(self, ax, rhosm):
         """
 
         """
-        pass
+        # Build 3D versions of the arrays to find all indices without
+        # python native iteration
+        x3d = np.transpose(np.tile(self.x, list(rhosm.shape) + [1]), (2,0,1))
+        rrm3d = np.tile(rhosm, (len(self.x)))
+        # calculate 
+        x_over_rhosm = ax / rrm3d
+        return np.argmin(np.abs(x3d - x_over_rhosm), axis=0)
 
 #------------------------------------------------------------------------------
 
-    def calc(self, x, y):
+    def calc(self):
         """
 
         """
-        pass
+        self.gammaL = self._calcL()
+        self.gammaT = self._calcT()
+
+        return self.gammaL, self.gammaT
 
 ###############################################################################
 ###############################################################################
