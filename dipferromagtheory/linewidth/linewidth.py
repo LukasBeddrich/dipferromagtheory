@@ -74,11 +74,14 @@ class DynScalingFunc():
 
 #------------------------------------------------------------------------------
 
-    def __call__(self, x, y):
+    def calc(self):
         """
 
         """
-        pass
+        self.gammaL = self._calcL()
+        self.gammaT = self._calcT()
+
+        return self.gammaL, self.gammaT
 
 #------------------------------------------------------------------------------
 
@@ -148,14 +151,6 @@ class DynScalingFunc():
 
 #------------------------------------------------------------------------------
 
-    def _calcL_integrand(self, rho, eta):
-        """
-        Calculates one state of the integration along rho and eta.
-        """
-        pass
-
-#------------------------------------------------------------------------------
-
     def _select_rho_idx(self, ax, rhos):
         """
 
@@ -186,17 +181,6 @@ class DynScalingFunc():
         # calculate 
         x_over_rhosm = ax / rrm3d
         return np.argmin(np.abs(x3d - x_over_rhosm), axis=0)
-
-#------------------------------------------------------------------------------
-
-    def calc(self):
-        """
-
-        """
-        self.gammaL = self._calcL()
-        self.gammaT = self._calcT()
-
-        return self.gammaL, self.gammaT
 
 ###############################################################################
 ###############################################################################
