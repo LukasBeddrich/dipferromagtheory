@@ -134,15 +134,15 @@ class DynScalingFunc():
         for gidx, (ax, ay) in enumerate(zip(self.x, self.y)):
             # first term alpha = beta = sigma = T
             TTT = vTTTscaled(ay, self.g, rr, ee) * np.power(rrm, -2) * self.Chi.chiTscaled(ax/rr, ay/rr) * self.Chi.chiTscaled(ax/rrm, ay/rrm)
-            TTT /= (np.power(rr, 2.5) * self.gammaT[self._select_rho_idx(ax, rho)] + np.power(rrm, 2.5) * self.gammaT[self._select_rhom_idx(ax, rhom)])
+            TTT /= (np.power(rr, 2.5) * self.gammaT[self._select_rho_idx(ax, rho)] + np.power(rrm, 2.5) * self.gammaT[self._select_rhom_idx(ax, rrm)])
 
             # second term alpha = beta = T, sigma = L
             TLT = vTLTscaled(ay, self.g, rr, ee) * np.power(rrm, -2) * self.Chi.chiLscaled(ax/rr, ay/rr) * self.Chi.chiTscaled(ax/rrm, ay/rrm)
-            TLT /= (np.power(rr, 2.5) * self.gammaL[self._select_rho_idx(ax, rho)] + np.power(rrm, 2.5) * self.gammaT[self._select_rhom_idx(ax, rhom)])
+            TLT /= (np.power(rr, 2.5) * self.gammaL[self._select_rho_idx(ax, rho)] + np.power(rrm, 2.5) * self.gammaT[self._select_rhom_idx(ax, rrm)])
 
             # third term alpha = T, beta = sigma = L
             TLL = vTLLscaled(ay, self.g, rr, ee) * np.power(rrm, -2) * self.Chi.chiLscaled(ax/rr, ay/rr) * self.Chi.chiLscaled(ax/rrm, ay/rrm)
-            TLL /= (np.power(rr, 2.5) * self.gammaL[self._select_rho_idx(ax, rho)] + np.power(rrm, 2.5) * self.gammaL[self._select_rhom_idx(ax, rhom)])
+            TLL /= (np.power(rr, 2.5) * self.gammaL[self._select_rho_idx(ax, rho)] + np.power(rrm, 2.5) * self.gammaL[self._select_rhom_idx(ax, rrm)])
 
             newgamma[gidx] = np.trapz(np.trapz(TTT + TLT + TLL, rho, axis=1), eta)
 
@@ -184,17 +184,3 @@ class DynScalingFunc():
 ###############################################################################
 ###############################################################################
 ###############################################################################
-
-def kappaNi(T, Tc):
-    """
-
-    """
-    return 0.81 * np.abs((T - Tc)/Tc)**0.701
-
-j=0.1
-g = 1.0
-xi = 1 / kappaNi(T=629, Tc=628)
-
-q = np.linspace(0.0, 0.03, 101)
-
-chi = Chi(j=j, g=g, xi=xi)
