@@ -101,7 +101,7 @@ class DynScalingFunc():
 
         for gidx, (ax, ay) in enumerate(zip(self.x, self.y)):
             # first term alpha = L, beta = sigma = T
-            LTT = vLTTscaled(ay, g, rr, ee) * np.power(rrm, -2) * self.Chi.chiTscaled(ax/rr, ay/rr) * self.Chi.chiTscaled(ax/rrm, ay/rrm)
+            LTT = vLTTscaled(ay, self.g, rr, ee) * np.power(rrm, -2) * self.Chi.chiTscaled(ax/rr, ay/rr) * self.Chi.chiTscaled(ax/rrm, ay/rrm)
             LTT /= (rr**2.5 * self.gammaT[self._select_rho_idx(ax, rho)] + np.power(rrm, 2.5) * self.gammaT[self._select_rhom_idx(ax, rrm)])
 #            temp = vLTTscaled(ay, g, rr, ee) * np.power(rrm, -2) * self.Chi.chiTscaled(ax/rr, ay/rr) * self.Chi.chiTscaled(ax/rrm, ay/rrm)
 #            temp /= (rr**2.5 * self.gammaT[self._select_rho_idx(ax, rho)] + rhom(rr, ee)**2.5 * self.gammaT(self._select_rhom_idx(ax, rrm))
