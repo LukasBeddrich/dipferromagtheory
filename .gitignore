@@ -84,7 +84,7 @@ target/
 .ipynb_checkpoints
 
 # numpy-data
-.npz
+*.npz
 
 # IPython
 profile_default/
