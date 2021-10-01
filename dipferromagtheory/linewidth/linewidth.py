@@ -26,6 +26,7 @@ class DynScalingFunc():
         """
         self.settings = {
             "nrho" : 101,
+            "rho_upper_limit" : 3.0,
             "neta" : 21
         }
 
@@ -67,8 +68,10 @@ class DynScalingFunc():
             self.settings["nrho"] = value
         elif key.lower() == "neta":
             self.settings["neta"] = value
+        elif key.lower() == "rho_upper_limit":
+            self.settings["rho_upper_limit"] = value
         else:
-            print(f"key {key} is not known! Acceptable keys are 'j', 'g', 'xi', 'nrho', 'neta'")
+            print(f"key {key} is not known! Acceptable keys are 'j', 'g', 'xi', 'nrho', 'neta', 'rho_upper_limit'")
         
         self.update()
 
@@ -94,7 +97,7 @@ class DynScalingFunc():
         put the 'temp' calculation in _calcL_integrand?!?
         """
         newgamma = np.zeros(self.gammaL.shape)
-        rho = np.logspace(-1, 3.1, self.settings["nrho"])
+        rho = np.logspace(-1.1, self.settings["rho_upper_limit"], self.settings["nrho"])
         eta = np.linspace(-1,1, self.settings["neta"])
         rr, ee = np.meshgrid(rho, eta)
         rrm = rhom(rr, ee)
@@ -103,16 +106,11 @@ class DynScalingFunc():
             # first term alpha = L, beta = sigma = T
             LTT = vLTTscaled(ay, self.g, rr, ee) * np.power(rrm, -2) * self.Chi.chiTscaled(ax/rr, ay/rr) * self.Chi.chiTscaled(ax/rrm, ay/rrm)
             LTT /= (rr**2.5 * self.gammaT[self._select_rho_idx(ax, rho)] + np.power(rrm, 2.5) * self.gammaT[self._select_rhom_idx(ax, rrm)])
-#            temp = vLTTscaled(ay, g, rr, ee) * np.power(rrm, -2) * self.Chi.chiTscaled(ax/rr, ay/rr) * self.Chi.chiTscaled(ax/rrm, ay/rrm)
-#            temp /= (rr**2.5 * self.gammaT[self._select_rho_idx(ax, rho)] + rhom(rr, ee)**2.5 * self.gammaT(self._select_rhom_idx(ax, rrm))
 
             # second term alpha = beta = L, sigma = T
             LLT = vLLTscaled(ay, self.g, rr, ee) * np.power(rrm, -2) * self.Chi.chiLscaled(ax/rr, ay/rr) * self.Chi.chiTscaled(ax/rrm, ay/rrm)
             LLT /= (rr**2.5 * self.gammaL[self._select_rho_idx(ax, rho)] + np.power(rrm, 2.5) * self.gammaT[self._select_rhom_idx(ax, rrm)])
-#            temp += (
-#                vLLTscaled(ay, self.g, rr, ee) * np.power(rrm, -2) * self.Chi.chiLscaled(ax/rr, ay/rr) * self.Chi.chiTscaled(ax/rrm, ay/rrm) \
-#                / (rr**2.5 * self.gammaL[self._select_rho_idx(ax, rho)] + rhom(rr, ee)**2.5 * self.gammaT(self._select_rhom_idx(ax, rrm)))
-#            )
+
             newgamma[gidx] = np.trapz(np.trapz(LTT + LLT, rho, axis=1), eta)
         return newgamma
 
@@ -126,7 +124,7 @@ class DynScalingFunc():
         ----
         """
         newgamma = np.zeros(self.gammaL.shape)
-        rho = np.logspace(-1, 3.1, self.settings["nrho"])
+        rho = np.logspace(-1.1, self.settings["rho_upper_limit"], self.settings["nrho"])
         eta = np.linspace(-1,1, self.settings["neta"])
         rr, ee = np.meshgrid(rho, eta)
         rrm = rhom(rr, ee)

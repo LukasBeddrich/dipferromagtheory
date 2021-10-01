@@ -2,6 +2,8 @@
 Mathematical utility functions.
 """
 
+import numpy as np
+
 def kdelta(i, j):
     """
     Kronecker delta function
@@ -27,3 +29,9 @@ def rhom(rho, eta):
 
 #     """
 #     return g**0.5 / y * (1 - 2*eta*rho + rho**2)
+
+def sum_of_squared_difference(arr):
+    res = np.zeros(len(arr) - 1)
+    for idx, subarr in enumerate(arr[:-1]):
+        res[idx] = np.power(subarr - arr[idx+1], 2).sum()
+    return res
