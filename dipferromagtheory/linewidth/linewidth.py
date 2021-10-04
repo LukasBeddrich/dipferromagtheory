@@ -2,7 +2,10 @@
 Implementation of the integral equations determining the longitudinal
 and transverse linewdith.
 """
-import numpy as np
+try:
+    import autograd.numpy as np
+except ImportError:
+    import numpy as np
 #------------------------------------------------------------------------------
 from .vertices import *
 from .susceptibility import Chi
