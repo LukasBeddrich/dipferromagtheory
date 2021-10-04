@@ -11,9 +11,9 @@ Je größer g ist, umso mehr iterationen sind nötig?
 """
 
 ### Parameter set
-gs = [0.0, 0.1, 1.0, 10.0, 100.0] # [0.0, 0.01, 0.1, 1.0, 10.0, 100.0]
+gs = [0.0, 0.1, 1.0, 5.0, 10.0, 50.0, 100.0]
 
-params = lambda g: dict(j=10.0, g=g, xi=1.0, qs=np.logspace(-1, 3, 101))
+params = lambda g: dict(j=10.0, g=g, xi=1.0, qs=np.logspace(-1, 3, 161))
 
 dsfs = []
 for g in gs:
@@ -21,7 +21,7 @@ for g in gs:
     dsfs.append(dsf)
 
 iterations = 50
-save_the_arrays = np.zeros((len(gs), iterations, 2, 101))
+save_the_arrays = np.zeros((len(gs), iterations, 2, 161))
 
 t0 = time.time()
 for i in range(iterations):
@@ -40,16 +40,20 @@ storedarray = np.load(resdir + "/g_study_results.npz")
 plt.figure(figsize=(9,6))
 for idx, g in enumerate(gs):
     plt.plot(dsfs[idx].x, storedarray[f"{g}"][-1, 0]/storedarray[f"{g}"][-1, 0,-1], ls="--", marker=".", label=f"g = {g:.2f}")
-#    plt.plot(dsfs[idx].x, dsfs[idx].gammaL, ls="--", marker=".", label=f"g = {g:.2f}")
-    plt.xlim((0,8))
-    plt.ylim((0.5, 3.0))
+#    plt.plot(dsfs[idx].x, dsfs[idx].gammaL / dsfs[idx].gammaL[-1], ls="--", marker=".", label=f"g = {g:.2f}")
+#    plt.xlim((0,8))
+#    plt.ylim((0.5, 3.0))
+plt.xlabel("$1 / q \\xi$", fontsize=20)
+plt.ylabel("$\\gamma^L / \\gamma^L_0$", fontsize=20)
 plt.legend()
 
 plt.figure(figsize=(9,6))
 for idx, g in enumerate(gs):
     plt.plot(dsfs[idx].x, storedarray[f"{g}"][-1, 1]/storedarray[f"{g}"][-1, 1,-1], ls="--", marker=".", label=f"g = {g:.2f}")
-#    plt.plot(dsfs[idx].x, dsfs[idx].gammaT, ls="--", marker=".", label=f"g = {g:.2f}")
-    plt.xlim((0,8))
-    plt.ylim((0.5, 3.0))
+#    plt.plot(dsfs[idx].x, dsfs[idx].gammaT / dsfs[idx].gammaT[-1], ls="--", marker=".", label=f"g = {g:.2f}")
+#    plt.xlim((0,8))
+#    plt.ylim((0.5, 3.0))
+plt.xlabel("$1 / q \\xi$", fontsize=20)
+plt.ylabel("$\\gamma^T / \\gamma^T_0$", fontsize=20)
 plt.legend()
 plt.show()

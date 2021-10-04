@@ -27,25 +27,25 @@ t0 = time.time()
 for i in range(iterations):
     for j, dsf in enumerate(dsfs):
         start = time.time()
-        save_the_arrays[j, i, 0, :nqs[j]], save_the_arrays[j, i, 1, :nqs[j]] = dsf.calc()
+#        save_the_arrays[j, i, 0, :nqs[j]], save_the_arrays[j, i, 1, :nqs[j]] = dsf.calc()
         finish = time.time()
-        print(f"Iteration ({i+1}, {j+1}) took: {finish-start:.2f} seconds.")
-print(f"Total calculation time: {finish-t0:.2f} seconds.")
+#        print(f"Iteration ({i+1}, {j+1}) took: {finish-start:.2f} seconds.")
+#print(f"Total calculation time: {finish-t0:.2f} seconds.")
 
-savedicts = {f'{n}' : save_the_arrays[nidx] for nidx, n in enumerate(nqs)}
-np.savez(resdir + "/number_of_qs_study_results.npz", **savedicts)
+#savedicts = {f'{n}' : save_the_arrays[nidx] for nidx, n in enumerate(nqs)}
+#np.savez(resdir + "/number_of_qs_study_results.npz", **savedicts)
 
 storedarray = np.load(resdir + "/number_of_qs_study_results.npz")
 
 plt.figure(figsize=(9,6))
 for idx, n in enumerate(nqs):
-#    plt.plot(dsfs[idx].x, storedarray[f"{xi}"][-1, 0], ls="--", marker=".", label=f"$\\xi$ = {xi:.2f}")
-    plt.plot(dsfs[idx].x, dsfs[idx].gammaL, ls="--", marker=".", label=f"n = {n:.2f}")
+    plt.plot(dsfs[idx].x, storedarray[f"{n}"][-1, 0, :n], ls="--", marker=".", label=f"n = {n}")
+#    plt.plot(dsfs[idx].x, dsfs[idx].gammaL, ls="--", marker=".", label=f"n = {n:.2f}")
 plt.legend()
 
 plt.figure(figsize=(9,6))
 for idx, n in enumerate(nqs):
-#    plt.plot(dsfs[idx].x, storedarray[f"{xi}"][-1, 1], ls="--", marker=".", label=f"$\\xi$ = {xi:.2f}")
-    plt.plot(dsfs[idx].x, dsfs[idx].gammaT, ls="--", marker=".", label=f"n = {n:.2f}")
+    plt.plot(dsfs[idx].x, storedarray[f"{n}"][-1, 1,:n], ls="--", marker=".", label=f"n = {n}")
+#    plt.plot(dsfs[idx].x, dsfs[idx].gammaT, ls="--", marker=".", label=f"n = {n:.2f}")
 plt.legend()
 plt.show()
